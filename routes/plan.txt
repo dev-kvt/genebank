@@ -1,0 +1,111 @@
+We'll be implementing advanced routing concepts and practices in this repository , all modern 
+practices , code reviews and analysis of routes for opensource express.js based use cases will be 
+analysed and shown here .
+
+
+
+An ideal Express File Structure looks something like this :
+/src
+  /config        -> env loaders, config objects
+  /api
+    /routes
+    /controllers
+    /validators
+    /schemas
+  /services      -> business logic, external API wrappers
+  /models        -> ORM/ODM models
+  /middlewares
+  /utils
+  app.js         -> express app (no server.listen)
+  server.js      -> starts process, handles signals
+/tests
+  /unit
+  /integration
+.env
+.env.example
+package.json
+Dockerfile
+docker-compose.yml
+.gitignore
+
+
+----------------------
+Module 2:
+
+Recommended Layout :
+/src
+  /api
+    /routes
+      user.routes.js
+      auth.routes.js
+      index.js
+    /controllers
+      user.controller.js
+      auth.controller.js
+
+
+Mental Model of Routing + Controllers:
+
+Think of Express as a pipeline builder.
+App instance (app.js) = root pipeline.
+Router instance (Router()) = sub-pipeline for one resource.
+Middleware functions = filters that run in order.
+Controller = endpoint terminator.
+Service = actual brain that does the job.
+
+Visual Flow (Request lifecycle):
+
+HTTP Request
+   |
+   v
+app.js (global middleware: helmet, cors, body-parser)
+   |
+   v
+/api/v1/users -> user.routes.js (Router)
+   |
+   v
+[ auth middleware ] -> [ validation middleware ]
+   |
+   v
+Controller function (thin)
+   |
+   v
+Service layer (business logic + DB)
+   |
+   v
+Response JSON
+
+----------------------
+Module 3:
+
+
+Controller : It is a function that responds to a request 
+Basic: 
+  function getAllUsers( req, res){
+    res.json([{
+        name: "amrit"
+    }]);
+  }
+
+Why Separate Controller from Route ? ->
+
+Without Seperation:
+
+app.get("/users", async (req,res)=>{
+  const users = await db.findAll();
+  res.json(users);
+});
+
+Problem:
+Logic lives inline — hard to reuse
+Hard to test in isolation
+Becomes messy when logic grows
+
+Visualizing Basics
+Think of it as a map:
+GET /users        → getAllUsers()
+POST /users       → createUser()
+GET /users/:id    → getUserById()
+PATCH /users/:id  → updateUser()
+DELETE /users/:id → deleteUser()
+
